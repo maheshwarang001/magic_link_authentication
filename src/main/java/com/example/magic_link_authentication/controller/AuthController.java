@@ -4,6 +4,7 @@ package com.example.magic_link_authentication.controller;
 import com.example.magic_link_authentication.model.User;
 import com.example.magic_link_authentication.service.*;
 import com.example.magic_link_authentication.validation.EncodeDecodeService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +12,8 @@ import org.springframework.http.ResponseEntity;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -19,7 +22,6 @@ import java.util.concurrent.Executors;
 
 import static com.example.magic_link_authentication.validation.EmailPatter.EMAIL_PATTERN;
 import static com.example.magic_link_authentication.validation.SpaceRemover.removeSpaces;
-
 
 
 /**
@@ -75,12 +77,21 @@ public class AuthController {
     @PostMapping("/v1/login")
     public ResponseEntity<Boolean> login(@RequestParam("email") String inputEmail, HttpSession session) {
 
-        System.out.println(inputEmail);
+        log.info(inputEmail);
 
-         /**  Extra space remover **/
+        /**  Dynamically get the base URL**/
+        HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
+        String protocol = request.getScheme();
+        String serverName = request.getServerName();
+        int serverPort = request.getServerPort();
+        String baseUrl = protocol + "://" + serverName + ":" + serverPort;
+
+
+        /**  Extra space remover **/
         String email = removeSpaces(inputEmail);
         StringBuilder str = new StringBuilder();
-        str.append("http://localhost:8080/zally/v1/validate?token=");
+        str.append(baseUrl);
+        str.append("/zally/v1/validate?token=");
 
         /**  Regex Validation **/
         if (email.length() == 0 || !EMAIL_PATTERN.matcher(email).matches()) {
@@ -136,34 +147,43 @@ public class AuthController {
      * Parse jwt token > Get user's email id > create user if exist or send UUID
      * UUID is encoded using base64 > passed along with the url
      * String data is decoded to get users UUID. A query is made to check user exist in database
-     *
+     * <p>
      * if valid then home page is rendered or else login page
      **/
 
     @GetMapping("/v1/validate")
     public String validateLink(@RequestParam(name = "token") String token,
-                               HttpSession session) {
+                               HttpSession session) throws Exception {
 
         String userEmail = jwtService.validateToken(token);
 
+        try {
+            if (userEmail != null) {
+                session.setAttribute("magicLinkToken", token);
 
-        if (userEmail != null) {
-            session.setAttribute("magicLinkToken", token);
+                log.info("Token validation successful for user: {}", userEmail);
 
-            log.info("Token validation successful for user: {}", userEmail);
+                UUID data = mainService.checkOrCreateUser(userEmail);
+                byte[] encode = encodeDecodeService.encode(data);
 
-            UUID data = mainService.checkOrCreateUser(userEmail);
-            byte[] encode = encodeDecodeService.encode(data);
-            String str = new String(encode);
-            log.info(str);
+                /** EDGE CASES **/
+                if (encode.length == 0) {
+                    log.error("UUID NOT FOUND");
+                    throw new Exception();
+                }
 
-            return "redirect:/zally/v1/token-validated/checkuser?data=" + str;
+                String str = new String(encode);
+                log.info(str);
+
+                return "redirect:/zally/v1/token-validated/checkuser?data=" + str;
+            }
+        } catch (Exception e) {
+
+            log.error("Token validation failed for token: {}", token);
+
         }
-
-        log.error("Token validation failed for token: {}", token);
         return "redirect:/zally/v1";
     }
-
 
 
     /**
@@ -178,7 +198,6 @@ public class AuthController {
      * Edge case if user is null
      * if valid then home page is rendered or else login page
      **/
-
 
 
     @GetMapping("/v1/token-validated/checkuser")
@@ -231,18 +250,17 @@ public class AuthController {
     }
 
 
-
- /**
- * The `logout` method is a handler for the post request mapped to "/auth/v2/home/logout". It is responsible for logout
- * Parameters:
- * (HttpSession): The HttpSession object representing the user session.
- * Return Type:
- * String: It returns a String representing the view name to be rendered on the server side.
- * Multi threading is used to remove JWT token from the session and by the time the main thread must've redirected to the login page endpoint
- **/
+    /**
+     * The `logout` method is a handler for the post request mapped to "/auth/v2/home/logout". It is responsible for logout
+     * Parameters:
+     * (HttpSession): The HttpSession object representing the user session.
+     * Return Type:
+     * String: It returns a String representing the view name to be rendered on the server side.
+     * Multi threading is used to remove JWT token from the session and by the time the main thread must've redirected to the login page endpoint
+     **/
 
     @PostMapping("/v2/home/logout")
-    public String logout(HttpSession session){
+    public String logout(HttpSession session) {
 
         Runnable logoutTask = () -> session.removeAttribute("magicLinkToken");
         executorService.submit(logoutTask);

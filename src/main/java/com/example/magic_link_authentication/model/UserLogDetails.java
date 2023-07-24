@@ -6,7 +6,7 @@ import lombok.Data;
 
 import java.time.LocalDateTime;
 import java.util.Date;
-
+/** LOG USER JOIN IN DATE AND LAST_LOG **/
 @Data
 @MappedSuperclass
 public class UserLogDetails {

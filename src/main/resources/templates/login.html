@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title th:text="${pageTitle}">Default Page Title</title>
+    <title th:text="${LOGIN}">ZALLY</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.16/dist/tailwind.min.css" rel="stylesheet">
 </head>
 <body style="overflow: hidden">
@@ -43,6 +43,7 @@
             <span class="text-white text-4xl font-semibold text-xl:text-6xl">Just You.</span>
         </div>
         <div class="flex">
+<!--    FORM FOR EMAIL SUBMIT        -->
             <form id="loginForm" th:action="@{/zally/v1/login}" method="post">
                 <input class=" px-6 py-3 rounded-md border border-gray-300 focus:outline-none focus:border-pink-600 text-md"
                        type="email" placeholder="xyz@gmail.com" name="email" required>
@@ -52,7 +53,7 @@
                 </button>
             </form>
         </div>
-
+<!--  DISPLAY SUCCESS FAILURE MESSAGE      -->
         <div id="resultMessage" style="display: none;">
             <p id="statusMessage" style=" font-weight: normal ;color: green;"></p>
         </div>
@@ -64,7 +65,7 @@
         event.preventDefault();
 
         const formData = new FormData(event.target);
-
+        /**POST REQUEST TO THE ENDPOINT {/V1/LOGIN} **/
         fetch(event.target.action, {
             method: "POST",
             body: formData,
@@ -77,13 +78,14 @@
                 return response.json();
             })
             .then(data => {
-
+                /**GET ID**/
                 const isSuccess = data;
                 const resultMessage = document.getElementById("resultMessage");
                 const statusMessage = document.getElementById("statusMessage");
 
                 resultMessage.style.display = "block";
 
+                /**PASS RESULT**/
                 if (isSuccess) {
                     statusMessage.innerText = "The verification link has been sent to your email";
                     statusMessage.style.color = "white";

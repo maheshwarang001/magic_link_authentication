@@ -32,7 +32,7 @@ public class JwtService {
 
     /**
      * SUBJECT: EMAIL ID
-     * EXPIRY: 20MINS
+     * EXPIRY: 10MINS
      * **/
     private String createToken(Map<String,Object> claims,
                                String userName){
@@ -41,7 +41,7 @@ public class JwtService {
                 .setSubject(userName)
                 .claim("role", Roles.USER)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 20))
+                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 10))
                 .signWith(getSignKey(), SignatureAlgorithm.HS256).compact();
     }
 
@@ -61,7 +61,7 @@ public class JwtService {
                     .parseClaimsJws(token);
             Claims claims = claimsJws.getBody();
 
-            // Check token expiration
+            /** Check token expiration **/
             Date expirationDate = claims.getExpiration();
             Date currentDate = new Date();
              if(!currentDate.after(expirationDate)){

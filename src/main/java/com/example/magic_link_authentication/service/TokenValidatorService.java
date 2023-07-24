@@ -15,18 +15,17 @@ public class TokenValidatorService {
     @Autowired
     JwtService jwtService;
 
-    private final ExecutorService executorService = Executors.newFixedThreadPool(5);
+    /**ExecutorService to handle token validation asynchronously**/
+    private final ExecutorService executorService = Executors.newFixedThreadPool(1);
 
-    public interface TokenValidationCallback {
-        void onTokenValidationResult(boolean isValidToken);
-    }
-
+    /** Method to validate a token asynchronously using CompletableFuture **/
     public CompletableFuture<Boolean> validateToken(String token) {
+        /** CompletableFuture.supplyAsync() allows us to run the token validation in a separate thread **/
+        /** The lambda function inside supplyAsync() returns true if the token is valid, otherwise false **/
         return CompletableFuture.supplyAsync(() -> jwtService.validateToken(token) != null, executorService);
     }
 
-    // Rest of the code remains the same...
-
+/** Method to clean up and shutdown the ExecutorService when the service is destroyed **/
     @PreDestroy
     public void destroy() {
         executorService.shutdown();

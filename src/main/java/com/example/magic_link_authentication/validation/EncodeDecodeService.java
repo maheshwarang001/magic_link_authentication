@@ -6,6 +6,9 @@ import org.springframework.stereotype.Service;
 import java.util.Base64;
 import java.util.UUID;
 
+
+/** STATIC CLASS TO ENCODE & DECODE **/
+/** USED GENERIC FOR MULTIPLE USE CASE **/
 @Service
 public class EncodeDecodeService {
 

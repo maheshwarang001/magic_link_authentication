@@ -16,4 +16,8 @@ public interface UserDaoInterface {
     UUID getUserUUID(String email);
 
     User userByID(UUID id);
+
+    void saveLastLogin(String email);
+
+
 }

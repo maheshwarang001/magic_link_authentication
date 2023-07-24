@@ -70,7 +70,7 @@ public class AuthController {
      * (Boolean)
      * Behavior
      * Edge cases for the email address are been checked > Extra space || Regex pattern.
-     * Token created [[SUBJECT: user email id] , [EXPIRY: 20 mins] )
+     * Token created [[SUBJECT: user email id] , [EXPIRY: 10 mins] )
      * A thread is initialized to prevent block of MAIN thread due to JAVAMAILSENDER
      * Improved the time efficiency by 60seconds
      **/

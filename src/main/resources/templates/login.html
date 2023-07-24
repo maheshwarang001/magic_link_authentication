@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title th:text="${pageTitle}">Default Page Title</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.16/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body style="overflow: hidden">
+<div style="height: 107px;background-color: #37003c; padding-left: 11px; padding-right: 11px; padding-top: 25px; padding-bottom: 25px;">
+    <div class="container mx-auto px-4 md:px-20 md:px-0 ">
+        <div class="flex items-center">
+            <a href="#" class="text-white font-bold text-xl">
+                <img th:src="@{/assets/images/zally.png}" style="height: 57px; width: 100px;" alt="img">
+            </a>
+            <div class="hidden md:flex space-x-4 ml-20">
+                <a href="#" class="text-gray-400 font-bold">Home</a>
+                <a href="#" class="text-gray-400 font-bold">About</a>
+                <a href="#" class="text-gray-400 font-bold">Services</a>
+            </div>
+            <div class="hidden md:flex ml-auto">
+                <button class="text-white border border-2 p-2 rounded-xl hover:bg-pink-600 transition hover:p-3">
+                    Contact Us >
+                </button>
+            </div>
+
+            <div class="md:hidden ml-auto">
+                <button class="text-white">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                         xmlns="http://www.w3.org/2000/svg">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
+                              d="M4 6h16M4 12h16m-7 6h7"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div style="background-color: #37003c;" class="min-h-screen flex items-center justify-center">
+    <div class="flex flex-col items-center justify-center h-full">
+        <div class="mb-4 flex flex-col items-center">
+
+            <span class="text-white text-4xl font-semibold text-xl:text-6xl">Zero Passwords.</span>
+            <span class="text-white text-4xl font-semibold text-xl:text-6xl">Just You.</span>
+        </div>
+        <div class="flex">
+            <form id="loginForm" th:action="@{/zally/v1/login}" method="post">
+                <input class=" px-6 py-3 rounded-md border border-gray-300 focus:outline-none focus:border-pink-600 text-md"
+                       type="email" placeholder="xyz@gmail.com" name="email" required>
+                <button type="submit" class="ml-4 px-6 py-3 rounded-md bg-pink-600 text-white font-semibold text-xl
+               border-2 border-transparent hover:border-white hover:scale-110 hover:shadow-xl transition-transform duration-300">
+                    Click
+                </button>
+            </form>
+        </div>
+
+        <div id="resultMessage" style="display: none;">
+            <p id="statusMessage" style=" font-weight: normal ;color: green;"></p>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.getElementById("loginForm").addEventListener("submit", function (event) {
+        event.preventDefault();
+
+        const formData = new FormData(event.target);
+
+        fetch(event.target.action, {
+            method: "POST",
+            body: formData,
+        })
+            .then(response => {
+
+                if (!response.ok) {
+                    throw new Error("Server responded with an error.");
+                }
+                return response.json();
+            })
+            .then(data => {
+
+                const isSuccess = data;
+                const resultMessage = document.getElementById("resultMessage");
+                const statusMessage = document.getElementById("statusMessage");
+
+                resultMessage.style.display = "block";
+
+                if (isSuccess) {
+                    statusMessage.innerText = "The verification link has been sent to your email";
+                    statusMessage.style.color = "white";
+                } else {
+                    statusMessage.innerText = "Something went wrong, try again later";
+                    statusMessage.style.color = "white";
+                }
+            })
+            .catch(error => {
+                console.error("Error sending the POST request:", error);
+            });
+    });
+</script>
+</body>
+</html>

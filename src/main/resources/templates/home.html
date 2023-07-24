@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title th:text="${pageTitle}">Default Page Title</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.16/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body style="overflow-x: hidden">
+<div style="height: 107px;background-color: #37003c; padding-left: 11px; padding-right: 11px; padding-top: 25px; padding-bottom: 25px;">
+    <div class="container mx-auto px-4 md:px-20 md:px-0 ">
+        <div class="flex items-center">
+            <a href="#" class="text-white font-bold text-xl">
+                <img th:src="@{/assets/images/zally.png}" style="height: 57px; width: 100px;" alt="img">
+            </a>
+            <div class="hidden md:flex space-x-4 ml-20">
+                <a href="#" class="text-gray-400 font-bold">Home</a>
+                <a href="#" class="text-gray-400 font-bold">About</a>
+                <a href="#" class="text-gray-400 font-bold">Services</a>
+            </div>
+            <div class="hidden md:flex ml-auto">
+                <button  id="logoutBtn"  class="text-white border border-2 p-2 rounded-xl hover:bg-pink-600 transition hover:p-3">
+                    Log out >
+                </button>
+            </div>
+
+            <div class="md:hidden ml-auto">
+                <button class="text-white">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                         xmlns="http://www.w3.org/2000/svg">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
+                              d="M4 6h16M4 12h16m-7 6h7"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div style="background-color: #37003c;" class="min-h-screen flex px-4">
+
+    <div class="w-1/2  flex justify-center items-center">
+        <div class="text-center flex flex-col">
+            <span class="text-white font-extrabold text-5xl mb-2 p-1">Our product is free to try</span>
+            <span class="text-white font-extrabold text-5xl mb-2 p-1">No hidden pricing</span>
+            <span class="text-white font-extrabold text-5xl mb-2 p-1">Get on the waiting list today</span>
+        </div>
+    </div>
+    <div class="w-1/2 relative">
+        <img th:src="@{/assets/images/dpad.png}" style="height: 700px"
+             class="shadow-xl round-md p-5 w-full  object-cover object-center transform hover:scale-110 transition-transform duration-300">
+    </div>
+
+</div>
+
+<div style="background-color: #37003c;" class="min-h-screen flex items-center justify-center">
+    <div class="flex flex-col items-center justify-center h-full">
+        <div class="flex flex-col items-center mb-10">
+            <form>
+
+                <div class="mb-4 flex flex-row items-center justify-center">
+                    <span class="text-white font-extrabold text-6xl ">Get In Touch</span>
+
+                </div>
+
+                <div class="mb-4 flex flex-row items-center">
+
+                    <input class="px-6 py-3 rounded-md border border-gray-300 focus:outline-none focus:border-pink-600 text-lg"
+                           type="email" placeholder="Name" name="email" required>
+                    <input class="ml-2 px-6 py-3 rounded-md border border-gray-300 focus:outline-none focus:border-pink-600 text-lg"
+                           type="email" placeholder="xyz@gmail.com" name="email" required>
+                </div>
+
+
+                <div class="flex flex-row items-center">
+                    <input class="w-full px-6 py-3 rounded-md border border-gray-300 focus:outline-none focus:border-pink-600 text-lg"
+                           type="email" placeholder="Your message" name="email" required>
+
+                </div>
+
+                <div class="mt-4 flex flex-row items-center">
+
+
+                    <button type="submit" class=" w-full mt-2 px-6 py-3 rounded-full bg-pink-600 text-white font-semibold text-xl
+                   border-2 border-transparent hover:border-white hover:scale-110 hover:shadow-xl transition-transform duration-300">
+                        Send Message
+                    </button>
+                </div>
+
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    const handleLogout = () => {
+        fetch("/zally/v2/home/logout", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+
+        })
+            .then(response => {
+
+                if (response.ok) {
+
+                    console.log("Logout successful!");
+                    window.location.href = "/zally/v1";
+                } else {
+                    console.error("Logout failed:", response.status, response.statusText);
+                }
+            })
+            .catch(error => {
+
+                console.error("Error during logout:", error);
+            });
+    };
+
+
+    logoutBtn.addEventListener("click", handleLogout);
+</script>
+
+</body>
+</html>
